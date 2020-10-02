@@ -1,5 +1,5 @@
 /*
- *  Team Specter
+ *  Code for robot gathering contest
  *  
  *
  *
