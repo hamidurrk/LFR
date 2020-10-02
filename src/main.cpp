@@ -1,6 +1,6 @@
 /*
+ *  Team Specter
  *  
- *
  *
  *
  *
@@ -28,6 +28,9 @@
 #define led3 43
 #define servo1_pin 8
 #define servo2_pin 9
+
+Servo servo1;
+Servo servo2;
 
 int DEBUG = 1;
 int v = 0;
@@ -83,8 +86,9 @@ void Tright();
 void BreakR();
 void BreakL();
 void BreakF();
-void obstacle();
-void search();
+void pick_object();
+void release_object();
+double search();
 void shift_right(int value);
 
 //-----------------------------Starting point------------------
@@ -102,10 +106,16 @@ void setup()
   pinMode(btn4, INPUT);
   pinMode(btn5, INPUT);
 
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
+
   pinMode(pwR, OUTPUT);
   pinMode(pwL, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  servo1.attach(servo1_pin);
+  servo2.attach(servo2_pin);
 
   // generateThreshold();
   for (int load_memory = 0; load_memory < memory_length; load_memory++)
@@ -114,9 +124,17 @@ void setup()
   }
 }
 //------------------------------Main Loop--------------------
-
 void loop()
 {
+  readSensors();
+  generateBinary();
+  deviation();
+  PIDval();
+  doura();
+  if (sumation > 4)
+  {
+    detection();
+  }
 }
 //-------------------------------------------------------------------
 void shift_right(int value)
@@ -169,7 +187,6 @@ void readSensors()
     }
   }
 }
-
 //---------------------------------------------------------------------------------------
 void generateBinary()
 {
@@ -191,16 +208,15 @@ void generateBinary()
   {
     sensorData = (sensorData << 1) | x[cxx];
   }
-
+  shift_right(memory_length - 1);
+  memory[0] = sensorData;
   if (DEBUG)
   {
     Serial.print(" ");
     Serial.print(sensorData, BIN);
   }
 }
-
 //--------------------------------------------------------------------------------
-
 void generateThreshold()
 {
   digitalWrite(24, HIGH);
@@ -226,9 +242,7 @@ void generateThreshold()
   delay(2000);
   digitalWrite(24, LOW);
 }
-
 //----------------------------------THE MAIN CALCULATION&EXECUTION------------------------------------------------
-
 void deviation()
 {
   if (sensorData == B00000000)
@@ -288,9 +302,7 @@ void deviation()
     Vul = Vul / sm;
   }
 }
-
 //-----------------------------------------------------------------------------------
-
 void PIDval()
 {
   Shomakolon = Shomakolon + Vul;
@@ -303,9 +315,7 @@ void PIDval()
     Serial.print(Vul);
   }
 }
-
 //------------------------------------------------------------------------------------
-
 void doura()
 {
   if (Vul > 0)
@@ -451,7 +461,7 @@ void Tright()
   }
 }
 //----------------------------------Searching For Object------------------------------------
-void search()
+double search()
 {
   double duration = 0.00;
   double CM = 0.00;
@@ -466,39 +476,62 @@ void search()
 
   duration = pulseIn(echoPin, HIGH, 1700);
   CM = (duration / 58.82);
-  if (CM > 10 && CM < 20)
-    obstacle();
+  if (CM > 10 && CM < 25)
+    pick_object();
+  return CM;
 }
 //-------------------------------------------------------------------------------------------
-void obstacle()
+void pick_object()
 {
   BreakF();
-  Stop(120);
-  Right(280, 120);
-  BreakR();
-  Stop(120);
-  while (1)
+  while (search() > 5)
   {
-    analogWrite(pwR, 140);
-    analogWrite(pwL, 112);
-    digitalWrite(rMin1, HIGH);
-    digitalWrite(rMin2, LOW);
-    digitalWrite(lMin1, HIGH);
-    digitalWrite(lMin2, LOW);
-    readSensors();
-    generateBinary();
-    if (sumation > 1)
-    {
-      inverse++;
-      Forward(300, 170);
-      Tright();
-      break;
-    }
+    Forward(10, 50);
   }
-  digitalWrite(24, LOW);
-  digitalWrite(25, LOW);
+  BreakF();
+  for (int servo_angle = 0; servo_angle < 90; servo_angle++)
+  {
+    servo1.write(servo_angle);
+    servo2.write(servo_angle);
+    delay(10);
+  }
+}
+//--------------------------------------------------------------------------------------------
+void release_object()
+{
+  BreakF();
+  for (int servo_angle = 90; servo_angle > 0; servo_angle--)
+  {
+    servo1.write(servo_angle);
+    servo2.write(servo_angle);
+    delay(10);
+  }
+  while (search() < 8)
+  {
+    Backward(10, 50);
+  }
 }
 //------------------------------------Case Detection-------------------------------------------
 void detection()
 {
+  digitalWrite(led1, HIGH);
+  digitalWrite(led2, HIGH);
+  digitalWrite(led3, HIGH);
+  for (int detect = 0; detect < 300; detect++)
+  {
+    readSensors();
+    generateBinary();
+    deviation();
+    PIDval();
+    doura();
+  }
+  unsigned int memory_value = 0;
+  for (int memory_iterator = 0; memory_iterator < memory_length; memory_iterator++)
+  {
+    memory_value = memory_value + memory[memory_iterator];
+  }
+  digitalWrite(led1, LOW);
+  digitalWrite(led2, LOW);
+  digitalWrite(led3, LOW);
+  Stop(20000);
 }
