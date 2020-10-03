@@ -7,11 +7,13 @@
 */
 
 #include <Arduino.h>
-#include <LiquidCrystal.h>
+#include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 
-#define trigPin A10
-#define echoPin A11
+int DEBUG = 1; // Make it 0 while running on contest
+
+#define trigPin A10 // Must connect to an analog pin
+#define echoPin A11 // Must connect to an analog pin
 #define rMin1 4
 #define rMin2 3
 #define lMin1 5
@@ -28,48 +30,47 @@
 #define led3 43
 #define servo1_pin 8
 #define servo2_pin 9
+#define sda 20 // Important! cannot change this pin
+#define scl 21 // Important! cannot change this pin
 
 Servo servo1;
 Servo servo2;
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-int DEBUG = 1;
+//-------------------- IR SENSOR RELATED VARIABLES-----------------------------------------
+boolean firstData[8]; /*to eliminate effect of noise*/
 int v = 0;
 unsigned int sensor[8];                              /*sensor readings are saved here*/
-boolean firstData[8];                                /*to eliminate effect of noise*/
 int sensorPin[8] = {A7, A6, A5, A4, A3, A2, A1, A0}; /*arduino pins to read sensors*/
 byte NumOfSensors = 8;
 byte i; /*just to run for loop!!*/
 unsigned int MaxWaitTime = 1024;
 byte sensorData;
+//---------------------------------------------------------------------------------------------
+
+char directions[3][100]; // memory of the track to follow -> have to be defined according to the track
 
 double velocity = 0;
-int obs = 0;
-int inverse = 2;
-// Choloks(variables) -_-
-char directions[3][100]; // memory of the track to follow -> have to be defined according to the track
-double right = 0;
-double left = 0;
-int sm = 0;
 double Vul = 0;
 double PIDvalue, RSpeed, LSpeed;
 double Parthokko = 0;
 double AgerVul = 0;
-double Const1 = 124;
+double Const1 = 12.4;
 double Const2 = 0;
 double Const3 = 6.1;
-int ct[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
-int x[8];
-double threshold[8] = {80, 80, 80, 80, 80, 80, 80, 80};
+double Shomakolon = 0;
+double motorspeed = 150;
+double threshold[8] = {80, 80, 80, 80, 80, 80, 80, 80}; //Array for holding sensor threshold values
 double t1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 double t2[8] = {1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
-unsigned long int memory[500]; // Memory of the path
-int memory_length = 500;
+unsigned long int memory[300]; // Memory of the path
+int memory_length = 300;
 int sumation;
-double Shomakolon = 0;
-double motorspeed = 240;
+int ct[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
+int x[8];
 int reading;
-
-//----------------------Functions used in this code----
+int sm = 0;
+//----------------------Functions used in this code-------------------------------
 void readSensors();
 void generateBinary();
 void generateThreshold();
@@ -90,6 +91,7 @@ void pick_object();
 void release_object();
 double search();
 void shift_right(int value);
+void detection();
 
 //-----------------------------Starting point------------------
 void setup()
@@ -114,13 +116,44 @@ void setup()
   pinMode(pwL, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+
   servo1.attach(servo1_pin);
   servo2.attach(servo2_pin);
 
-  // generateThreshold();
+  lcd.init();
+  lcd.backlight();
+
   for (int load_memory = 0; load_memory < memory_length; load_memory++)
   {
-    memory[load_memory] = load_memory;
+    memory[load_memory] = 0;
+  }
+  while (true)
+  {
+    lcd.setCursor(3, 0);
+    lcd.print("Calibrate?");
+    lcd.setCursor(3, 1);
+    lcd.print("btn2 = OK");
+    delay(100);
+    if (digitalRead(btn2) == HIGH)
+      break;
+  }
+  lcd.clear();
+  lcd.setCursor(2, 0);
+  lcd.print("Calibrating...");
+  generateThreshold();
+  lcd.clear();
+  while (true)
+  {
+    for (int threshold_iterator = 0; threshold_iterator < 4; threshold_iterator++)
+    {
+      lcd.setCursor(threshold_iterator * 3, 0);
+      lcd.print((int)threshold[threshold_iterator] < 1000 ? threshold[threshold_iterator] : 999);
+      lcd.setCursor(threshold_iterator * 3, 1);
+      lcd.print((int)threshold[threshold_iterator + 4] < 1000 ? threshold[threshold_iterator + 4] : 999);
+    }
+    delay(100);
+    if (digitalRead(btn2) == HIGH)
+      break;
   }
 }
 //------------------------------Main Loop--------------------
@@ -190,6 +223,9 @@ void readSensors()
 //---------------------------------------------------------------------------------------
 void generateBinary()
 {
+  if (DEBUG)
+    lcd.clear();
+
   sumation = 0;
   for (int cx = 0; cx < NumOfSensors; cx++)
   {
@@ -207,19 +243,21 @@ void generateBinary()
   for (int cxx = 0; cxx < NumOfSensors; cxx++)
   {
     sensorData = (sensorData << 1) | x[cxx];
+    if (DEBUG)
+    {
+      lcd.setCursor(cxx + 4, 0);
+      lcd.print(x[cxx]);
+    }
   }
   shift_right(memory_length - 1);
   memory[0] = sensorData;
+
   if (DEBUG)
-  {
-    Serial.print(" ");
-    Serial.print(sensorData, BIN);
-  }
+    lcd.clear();
 }
 //--------------------------------------------------------------------------------
 void generateThreshold()
 {
-  digitalWrite(24, HIGH);
   for (int th = 0; th < 250; th++)
   {
     Forward(1, 100);
@@ -236,11 +274,6 @@ void generateThreshold()
   {
     threshold[thr] = (t1[thr] + t2[thr]) / 2;
   }
-
-  Stop(100);
-  digitalWrite(24, HIGH);
-  delay(2000);
-  digitalWrite(24, LOW);
 }
 //----------------------------------THE MAIN CALCULATION&EXECUTION------------------------------------------------
 void deviation()
@@ -533,5 +566,18 @@ void detection()
   digitalWrite(led1, LOW);
   digitalWrite(led2, LOW);
   digitalWrite(led3, LOW);
-  Stop(20000);
+  /*
+  *Desicion making code will go here -> depends on on field values
+  * 
+  */
+  if (DEBUG)
+  {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.write(memory_value);
+    while (digitalRead(btn2) == LOW)
+    {
+      Stop(1000);
+    }
+  }
 }
