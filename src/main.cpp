@@ -267,9 +267,9 @@ void generateBinary()
 //--------------------------------------------------------------------------------
 void generateThreshold()
 {
-  for (int th = 0; th < 100; th++)
+  for (int th = 0; th < 500; th++)
   {
-    Forward(1, 80);
+    Forward(1, 100);
     readSensors();
     for (int sense = 0; sense < NumOfSensors; sense++)
     {
