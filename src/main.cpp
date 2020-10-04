@@ -578,10 +578,11 @@ void detection()
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(memory_value);
-  while (true)
-  {
-    Stop(10);
-    if (digitalRead(btn4) == LOW)
-      break;
-  }
+  // while (true)
+  // {
+  //   Stop(10);
+  //   if (digitalRead(btn4) == LOW)
+  //     break;
+  // }
+  Tright();
 }
