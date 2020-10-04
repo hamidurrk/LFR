@@ -10,7 +10,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 
-int DEBUG = 1; // Make it 0 in main run
+int DEBUG = 0; // Make it 0 in main run
 
 #define trigPin A8  // Must connect to an analog pin
 #define echoPin A10 // Must connect to an analog pin
@@ -164,6 +164,10 @@ void setup()
 //------------------------------Main Loop--------------------
 void loop()
 {
+  if (digitalRead(btn1) == LOW)
+  {
+    setup();
+  }
   readSensors();
   generateBinary();
   deviation();
@@ -265,7 +269,7 @@ void generateThreshold()
 {
   for (int th = 0; th < 100; th++)
   {
-    Forward(1, 100);
+    Forward(1, 80);
     readSensors();
     for (int sense = 0; sense < NumOfSensors; sense++)
     {
@@ -555,7 +559,7 @@ void detection()
   digitalWrite(led1, HIGH);
   digitalWrite(led2, HIGH);
   digitalWrite(led3, HIGH);
-  for (int detect = 0; detect < 300; detect++)
+  for (int detect = 0; detect < 200; detect++)
   {
     readSensors();
     generateBinary();
@@ -575,14 +579,11 @@ void detection()
   *Desicion making code will go here -> depends on on field values
   * 
   */
-  if (DEBUG)
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.write(memory_value);
+  while (digitalRead(btn4) == LOW)
   {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.write(memory_value);
-    while (digitalRead(btn4) == LOW)
-    {
-      Stop(1000);
-    }
+    Stop(1000);
   }
 }
