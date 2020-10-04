@@ -55,7 +55,7 @@ double Const1 = 12.4;
 double Const2 = 0;
 double Const3 = 6.1;
 double Shomakolon = 0;
-double motorspeed = 180;
+double motorspeed = 220;
 double velocity = 0;
 double Vul = 0;
 double PIDvalue, RSpeed, LSpeed;
@@ -64,8 +64,8 @@ double AgerVul = 0;
 double threshold[8] = {80, 80, 80, 80, 80, 80, 80, 80}; //Array for holding sensor threshold values
 double t1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 double t2[8] = {1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
-unsigned long int memory[300]; // Memory of the path
-int memory_length = 300;
+unsigned long int memory[200]; // Memory of the path
+int memory_length = 200;
 int sumation;
 int ct[8] = {-4, -3, -2, -1, 1, 2, 3, 4};
 int x[8];
@@ -475,7 +475,7 @@ void Tleft()
     Left(5, 160);
     readSensors();
     generateBinary();
-    if (x[1] == 1 || x[2] == 1)
+    if (x[0] == 1 || x[1] == 1)
     {
       BreakL();
       break;
@@ -555,7 +555,7 @@ void detection()
   digitalWrite(led1, HIGH);
   digitalWrite(led2, HIGH);
   digitalWrite(led3, HIGH);
-  for (int detect = 0; detect < 200; detect++)
+  for (int detect = 0; detect < 100; detect++)
   {
     readSensors();
     generateBinary();
