@@ -148,6 +148,7 @@ void setup()
   lcd.clear();
   while (true)
   {
+    Stop(10);
     for (int threshold_iterator = 0; threshold_iterator < 4; threshold_iterator++)
     {
       lcd.setCursor(threshold_iterator * 3, 0);
@@ -155,8 +156,7 @@ void setup()
       lcd.setCursor(threshold_iterator * 3, 1);
       lcd.print((int)threshold[threshold_iterator + 4] < 1000 ? threshold[threshold_iterator + 4] : 999);
     }
-    delay(100);
-    Stop(100);
+    delay(10);
     if (digitalRead(btn4) == LOW)
       break;
   }
@@ -263,7 +263,7 @@ void generateBinary()
 //--------------------------------------------------------------------------------
 void generateThreshold()
 {
-  for (int th = 0; th < 250; th++)
+  for (int th = 0; th < 100; th++)
   {
     Forward(1, 100);
     readSensors();
