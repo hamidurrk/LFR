@@ -575,6 +575,7 @@ void detection()
   *Desicion making code will go here -> depends on on field values
   * 
   */
+  Tright();
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(memory_value);
@@ -584,5 +585,4 @@ void detection()
   //   if (digitalRead(btn4) == LOW)
   //     break;
   // }
-  Tright();
 }
