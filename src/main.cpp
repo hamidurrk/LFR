@@ -582,7 +582,7 @@ void detection()
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.write(memory_value);
-  while (digitalRead(btn4) == LOW)
+  while (digitalRead(btn4) == HIGH)
   {
     Stop(1000);
   }
