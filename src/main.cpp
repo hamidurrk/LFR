@@ -12,8 +12,8 @@
 
 int DEBUG = 1; // Make it 0 in main run
 
-#define trigPin A10 // Must connect to an analog pin
-#define echoPin A11 // Must connect to an analog pin
+#define trigPin A8  // Must connect to an analog pin
+#define echoPin A10 // Must connect to an analog pin
 #define STBY 5
 #define rMin1 7
 #define rMin2 6
@@ -51,16 +51,16 @@ byte sensorData;
 
 char directions[3][100]; // memory of the track to follow -> have to be defined according to the track
 
-double velocity = 0;
-double Vul = 0;
-double PIDvalue, RSpeed, LSpeed;
-double Parthokko = 0;
-double AgerVul = 0;
 double Const1 = 12.4;
 double Const2 = 0;
 double Const3 = 6.1;
 double Shomakolon = 0;
 double motorspeed = 150;
+double velocity = 0;
+double Vul = 0;
+double PIDvalue, RSpeed, LSpeed;
+double Parthokko = 0;
+double AgerVul = 0;
 double threshold[8] = {80, 80, 80, 80, 80, 80, 80, 80}; //Array for holding sensor threshold values
 double t1[8] = {0, 0, 0, 0, 0, 0, 0, 0};
 double t2[8] = {1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
@@ -104,11 +104,11 @@ void setup()
   pinMode(lMin2, OUTPUT);
   pinMode(STBY, OUTPUT);
 
-  pinMode(btn1, INPUT);
-  pinMode(btn2, INPUT);
-  pinMode(btn3, INPUT);
-  pinMode(btn4, INPUT);
-  pinMode(btn5, INPUT);
+  pinMode(btn1, INPUT_PULLUP);
+  pinMode(btn2, INPUT_PULLUP);
+  pinMode(btn3, INPUT_PULLUP);
+  pinMode(btn4, INPUT_PULLUP);
+  pinMode(btn5, INPUT_PULLUP);
 
   pinMode(led1, OUTPUT);
   pinMode(led2, OUTPUT);
