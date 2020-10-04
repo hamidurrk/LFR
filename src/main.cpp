@@ -55,7 +55,7 @@ double Const1 = 12.4;
 double Const2 = 0;
 double Const3 = 6.1;
 double Shomakolon = 0;
-double motorspeed = 150;
+double motorspeed = 180;
 double velocity = 0;
 double Vul = 0;
 double PIDvalue, RSpeed, LSpeed;
@@ -567,7 +567,7 @@ void detection()
     PIDval();
     doura();
   }
-  unsigned int memory_value = 0;
+  unsigned long int memory_value = 0;
   for (int memory_iterator = 0; memory_iterator < memory_length; memory_iterator++)
   {
     memory_value = memory_value + memory[memory_iterator];
@@ -581,7 +581,7 @@ void detection()
   */
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.write(memory_value);
+  lcd.print(memory_value);
   while (true)
   {
     Stop(10);
