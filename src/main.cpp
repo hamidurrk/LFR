@@ -164,10 +164,6 @@ void setup()
 //------------------------------Main Loop--------------------
 void loop()
 {
-  if (digitalRead(btn1) == LOW)
-  {
-    setup();
-  }
   readSensors();
   generateBinary();
   deviation();
