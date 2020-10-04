@@ -10,24 +10,25 @@
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 
-int DEBUG = 1; // Make it 0 while running on contest
+int DEBUG = 1; // Make it 0 in main run
 
 #define trigPin A10 // Must connect to an analog pin
 #define echoPin A11 // Must connect to an analog pin
-#define rMin1 4
-#define rMin2 3
-#define lMin1 5
-#define lMin2 6
-#define pwL 7
-#define pwR 2
-#define btn1 31
-#define btn2 32
-#define btn3 33
-#define btn4 34
-#define btn5 35
-#define led1 41
-#define led2 42
-#define led3 43
+#define STBY 5
+#define rMin1 7
+#define rMin2 6
+#define lMin1 4
+#define lMin2 3
+#define pwL 2
+#define pwR 12
+#define btn1 23
+#define btn2 29
+#define btn3 22
+#define btn4 28
+#define btn5 34
+#define led1 24
+#define led2 26
+#define led3 32
 #define servo1_pin 8
 #define servo2_pin 9
 #define sda 20 // Important! cannot change this pin
@@ -101,6 +102,7 @@ void setup()
   pinMode(rMin2, OUTPUT);
   pinMode(lMin1, OUTPUT);
   pinMode(lMin2, OUTPUT);
+  pinMode(STBY, OUTPUT);
 
   pinMode(btn1, INPUT);
   pinMode(btn2, INPUT);
@@ -116,6 +118,7 @@ void setup()
   pinMode(pwL, OUTPUT);
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  digitalWrite(STBY, HIGH);
 
   servo1.attach(servo1_pin);
   servo2.attach(servo2_pin);
@@ -129,12 +132,13 @@ void setup()
   }
   while (true)
   {
+    lcd.clear();
     lcd.setCursor(3, 0);
     lcd.print("Calibrate?");
     lcd.setCursor(3, 1);
-    lcd.print("btn2 = OK");
+    lcd.print("btn4 = OK");
     delay(100);
-    if (digitalRead(btn2) == HIGH)
+    if (digitalRead(btn4) == LOW)
       break;
   }
   lcd.clear();
@@ -152,7 +156,7 @@ void setup()
       lcd.print((int)threshold[threshold_iterator + 4] < 1000 ? threshold[threshold_iterator + 4] : 999);
     }
     delay(100);
-    if (digitalRead(btn2) == HIGH)
+    if (digitalRead(btn4) == LOW)
       break;
   }
 }
@@ -575,7 +579,7 @@ void detection()
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.write(memory_value);
-    while (digitalRead(btn2) == LOW)
+    while (digitalRead(btn4) == LOW)
     {
       Stop(1000);
     }
