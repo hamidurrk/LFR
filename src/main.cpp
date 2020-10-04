@@ -156,6 +156,7 @@ void setup()
       lcd.print((int)threshold[threshold_iterator + 4] < 1000 ? threshold[threshold_iterator + 4] : 999);
     }
     delay(100);
+    Stop(100);
     if (digitalRead(btn4) == LOW)
       break;
   }
