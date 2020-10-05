@@ -49,11 +49,11 @@ unsigned int MaxWaitTime = 1024;
 byte sensorData;
 //---------------------------------------------------------------------------------------------
 
-char directions[100] = {'L', 'R', 'R', 'R', 'L'}; // memory of the track to follow -> have to be defined according to the track
+char directions[100]; // memory of the track to follow -> have to be defined according to the track
 unsigned int directions_iterator = 0;
 double Const1 = 14;
 double Const2 = 0;
-double Const3 = 1;
+double Const3 = 6;
 double Shomakolon = 0;
 double motorspeed = 220;
 double velocity = 0;
@@ -93,6 +93,7 @@ void release_object();
 double search();
 void shift_right(int value);
 void detection();
+void configurePID();
 
 //-----------------------------Starting point------------------
 void setup()
@@ -172,7 +173,68 @@ void loop()
   if (sumation > 4)
   {
     detection();
+    directions_iterator++;
   }
+  if (directions_iterator > 3)
+  {
+    configurePID();
+  }
+}
+//------------------------------------------------------------------
+void configurePID()
+{
+  directions_iterator = 0;
+  int constvalue = 1;
+  while (true)
+  {
+    if (constvalue == 1)
+    {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("Const1");
+      lcd.setCursor(5, 1);
+      lcd.print(Const1);
+      if (digitalRead(btn5) == LOW)
+      {
+        Const3 = Const3 + 0.1;
+      }
+      else if (digitalRead(btn3) == LOW)
+      {
+        Const3 = Const3 - 0.1;
+      }
+      if (digitalRead(btn1) == LOW || digitalRead(btn2) == LOW)
+      {
+        constvalue = !constvalue;
+      }
+      if (digitalRead(btn4) == LOW)
+        break;
+    }
+    else if (constvalue == 0)
+    {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("Const3");
+      lcd.setCursor(5, 1);
+      lcd.print(Const3);
+      if (digitalRead(btn5) == LOW)
+      {
+        Const3 = Const3 + 0.1;
+      }
+      else if (digitalRead(btn3) == LOW)
+      {
+        Const3 = Const3 - 0.1;
+      }
+      if (digitalRead(btn1) == LOW || digitalRead(btn2) == LOW)
+      {
+        constvalue = !constvalue;
+      }
+      if (digitalRead(btn4) == LOW)
+        break;
+    }
+    if (digitalRead(btn4) == LOW)
+      break;
+  }
+}
 }
 //-------------------------------------------------------------------
 void shift_right(int value)
@@ -265,7 +327,7 @@ void generateBinary()
 //--------------------------------------------------------------------------------
 void generateThreshold()
 {
-  for (int th = 0; th < 500; th++)
+  for (int th = 0; th < 300; th++)
   {
     Forward(1, 100);
     readSensors();
@@ -559,7 +621,7 @@ void detection()
   digitalWrite(led1, HIGH);
   digitalWrite(led2, HIGH);
   digitalWrite(led3, HIGH);
-  for (int detect = 0; detect < 60; detect++)
+  for (int detect = 0; detect < 50; detect++)
   {
     readSensors();
     generateBinary();
@@ -583,26 +645,12 @@ void detection()
   *Desicion making code will go here -> depends on on field values
   * 
   */
-  if (directions[directions_iterator] == 'L')
-  {
-    Tleft();
-    directions_iterator++;
-  }
-  else if (directions[directions_iterator] == 'R')
-  {
-    Tright();
-    directions_iterator++;
-  }
+  Tright();
+  //---------------------------------------------------------------
   if (MEMORY)
   {
     lcd.clear();
     lcd.setCursor(0, 0);
     lcd.print(memory_value);
   }
-  // while (true)
-  // {
-  //   Stop(10);
-  //   if (digitalRead(btn4) == LOW)
-  //     break;
-  // }
 }
