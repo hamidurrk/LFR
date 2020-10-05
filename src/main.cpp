@@ -10,8 +10,8 @@
 #include <LiquidCrystal_I2C.h>
 #include <Servo.h>
 
-int DEBUG = 0; // Make it 0 in main run
-
+int DEBUG = 0;      // Make it 0 in main run
+int MEMORY = 0;     // Memory not in use
 #define trigPin A8  // Must connect to an analog pin
 #define echoPin A10 // Must connect to an analog pin
 #define STBY 5
@@ -254,9 +254,11 @@ void generateBinary()
       lcd.print(x[cxx]);
     }
   }
-  shift_right(memory_length - 1);
-  memory[0] = sensorData;
-
+  if (MEMORY)
+  {
+    shift_right(memory_length - 1);
+    memory[0] = sensorData;
+  }
   if (DEBUG)
     lcd.clear();
 }
@@ -566,9 +568,13 @@ void detection()
     doura();
   }
   unsigned long int memory_value = 0;
-  for (int memory_iterator = 0; memory_iterator < memory_length; memory_iterator++)
+  if (MEMORY)
   {
-    memory_value = memory_value + memory[memory_iterator];
+
+    for (int memory_iterator = 0; memory_iterator < memory_length; memory_iterator++)
+    {
+      memory_value = memory_value + memory[memory_iterator];
+    }
   }
   digitalWrite(led1, LOW);
   digitalWrite(led2, LOW);
@@ -578,9 +584,12 @@ void detection()
   * 
   */
   Tright();
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print(memory_value);
+  if (MEMORY)
+  {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(memory_value);
+  }
   // while (true)
   // {
   //   Stop(10);
