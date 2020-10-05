@@ -15,10 +15,10 @@ int DEBUG = 0; // Make it 0 in main run
 #define trigPin A8  // Must connect to an analog pin
 #define echoPin A10 // Must connect to an analog pin
 #define STBY 5
-#define rMin1 7
-#define rMin2 6
-#define lMin1 4
-#define lMin2 3
+#define rMin1 6
+#define rMin2 7
+#define lMin1 3
+#define lMin2 4
 #define pwL 2
 #define pwR 12
 #define btn1 23
