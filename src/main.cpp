@@ -51,9 +51,9 @@ byte sensorData;
 
 char directions[3][100]; // memory of the track to follow -> have to be defined according to the track
 
-double Const1 = 12.4;
+double Const1 = 14;
 double Const2 = 0;
-double Const3 = 6.1;
+double Const3 = 1;
 double Shomakolon = 0;
 double motorspeed = 220;
 double velocity = 0;
@@ -477,6 +477,7 @@ void Tleft()
     generateBinary();
     if (x[0] == 1 || x[1] == 1)
     {
+      Left(50, 100);
       BreakL();
       break;
     }
@@ -493,6 +494,7 @@ void Tright()
     generateBinary();
     if (x[6] == 1 || x[7] == 1)
     {
+      Right(50, 100);
       BreakR();
       break;
     }
