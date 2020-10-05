@@ -49,8 +49,8 @@ unsigned int MaxWaitTime = 1024;
 byte sensorData;
 //---------------------------------------------------------------------------------------------
 
-char directions[3][100]; // memory of the track to follow -> have to be defined according to the track
-
+char directions[100] = {'L', 'R', 'R', 'R', 'L'}; // memory of the track to follow -> have to be defined according to the track
+unsigned int directions_iterator = 0;
 double Const1 = 14;
 double Const2 = 0;
 double Const3 = 1;
@@ -559,7 +559,7 @@ void detection()
   digitalWrite(led1, HIGH);
   digitalWrite(led2, HIGH);
   digitalWrite(led3, HIGH);
-  for (int detect = 0; detect < 100; detect++)
+  for (int detect = 0; detect < 60; detect++)
   {
     readSensors();
     generateBinary();
@@ -583,7 +583,16 @@ void detection()
   *Desicion making code will go here -> depends on on field values
   * 
   */
-  Tright();
+  if (directions[directions_iterator] == 'L')
+  {
+    Tleft();
+    directions_iterator++;
+  }
+  else if (directions[directions_iterator] == 'R')
+  {
+    Tright();
+    directions_iterator++;
+  }
   if (MEMORY)
   {
     lcd.clear();
